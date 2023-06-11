@@ -115,6 +115,28 @@ function emitDoo (pitch: number, ms: number) {
     InterpolationCurve.Linear
     ), music.PlaybackMode.UntilDone)
 }
+function emitQuery (pitch: number, ms: number) {
+    music.play(music.createSoundExpression(
+    WaveShape.Square,
+    1.1 * pitch,
+    pitch,
+    50,
+    255,
+    0.4 * ms,
+    SoundExpressionEffect.None,
+    InterpolationCurve.Linear
+    ), music.PlaybackMode.UntilDone)
+    music.play(music.createSoundExpression(
+    WaveShape.Square,
+    pitch,
+    1.5 * pitch,
+    255,
+    54,
+    0.6 * ms,
+    SoundExpressionEffect.None,
+    InterpolationCurve.Curve
+    ), music.PlaybackMode.UntilDone)
+}
 // ...stops abruptly
 function emitTweet (pitch: number, ms: number) {
     music.play(music.createSoundExpression(
@@ -140,22 +162,14 @@ function sleep (repeat: number, period: number) {
         quiet = true
     }
 }
-function dumDiDum (repeat: number, period: number) {
+function question (repeat: number, period: number) {
     if (quiet) {
         quiet = false
-        aveDiDum = period / repeat
+        aveQuery = period / repeat
         for (let index = 0; index < repeat; index++) {
-            pitch = randint(200, 360)
-            span = randint(0.7 * aveDiDum, 1.4 * aveDiDum)
-            // mostly "Dum"...
-            emitDoo(pitch, 0.5 * span)
+            span2 = randint(0.5 * aveQuery, 2 * aveQuery)
+            emitQuery(randint(250, 350), span2)
             basic.pause(100)
-            // .. with occasional "Di"
-            emitDoo(1.3 * pitch, 0.2 * span)
-            basic.pause(50)
-            // mostly "Dum"...
-            emitDoo(1.07 * pitch, 0.6 * span)
-            basic.pause(300)
         }
         quiet = true
     }
@@ -247,9 +261,30 @@ function emitGrowl (pitch: number, ms: number) {
     InterpolationCurve.Linear
     ), music.PlaybackMode.UntilDone)
 }
-let aveTweet = 0
+function Hum (repeat: number, period: number) {
+    if (quiet) {
+        quiet = false
+        aveDiDum = period / repeat
+        for (let index = 0; index < repeat; index++) {
+            pitch = randint(200, 360)
+            span = randint(0.7 * aveDiDum, 1.4 * aveDiDum)
+            // mostly "Dum"...
+            emitDoo(pitch, 0.5 * span)
+            basic.pause(100)
+            // .. with occasional "Di"
+            emitDoo(1.3 * pitch, 0.2 * span)
+            basic.pause(50)
+            // mostly "Dum"...
+            emitDoo(1.07 * pitch, 0.6 * span)
+            basic.pause(300)
+        }
+        quiet = true
+    }
+}
 let span = 0
 let aveDiDum = 0
+let aveTweet = 0
+let aveQuery = 0
 let aveSnore = 0
 let span2 = 0
 let pitch = 0
@@ -259,23 +294,26 @@ let quiet = false
 quiet = true
 music.setBuiltInSpeakerEnabled(false)
 basic.forever(function () {
-    if (input.rotation(Rotation.Pitch) < -60) {
+    if (input.rotation(Rotation.Pitch) < -45) {
         basic.showNumber(0)
         giggle(7, 800)
     } else if (input.rotation(Rotation.Pitch) < -30) {
         basic.showNumber(1)
         whistle(15, 3000)
-    } else if (input.rotation(Rotation.Pitch) < 0) {
+    } else if (input.rotation(Rotation.Pitch) < -15) {
         basic.showNumber(2)
-        dumDiDum(8, 3000)
-    } else if (input.rotation(Rotation.Pitch) < 30) {
+        Hum(8, 3000)
+    } else if (input.rotation(Rotation.Pitch) < 15) {
         basic.showNumber(3)
         sleep(5, 7000)
-    } else if (input.rotation(Rotation.Pitch) < 60) {
+    } else if (input.rotation(Rotation.Pitch) < 30) {
         basic.showNumber(4)
         grumble(6, 6000)
-    } else {
+    } else if (input.rotation(Rotation.Pitch) < 45) {
         basic.showNumber(5)
+        question(3, 1500)
+    } else {
+        basic.showNumber(6)
         abuse(4, 4000)
     }
     basic.clearScreen()
